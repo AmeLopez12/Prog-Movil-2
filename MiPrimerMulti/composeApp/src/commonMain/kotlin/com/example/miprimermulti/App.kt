@@ -15,10 +15,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.datetime.IllegalTimeZoneException
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 
 import miprimermulti.composeapp.generated.resources.Res
 import miprimermulti.composeapp.generated.resources.compose_multiplatform
+import kotlin.time.Clock
 
 @Composable
 @Preview
@@ -26,16 +31,29 @@ fun App() {
     MaterialTheme {
         var location by remember { mutableStateOf("Europe/Paris") }
         var timeAtLocation by remember { mutableStateOf("No location selected") }
+
         Column(
             modifier = Modifier
                 .safeContentPadding()
-                .fillMaxSize(),
+                .fillMaxSize()
         ) {
             Text(timeAtLocation)
             TextField(value = location, onValueChange = { location = it })
-            Button(onClick = { timeAtLocation = "13:30" }) {
+            Button(onClick = { timeAtLocation = currentTimeAt(location) ?: "Invalid Location" }) {
                 Text("Show Time At Location")
             }
         }
+    }
+}
+fun currentTimeAt(location: String): String? {
+    fun LocalTime.formatted() = "$hour:$minute:$second"
+
+    return try {
+        val time = Clock.System.now()
+        val zone = TimeZone.of(location)
+        val localTime = time.toLocalDateTime(zone).time
+        "The time in $location is ${localTime.formatted()}"
+    } catch (ex: IllegalTimeZoneException) {
+        null
     }
 }
