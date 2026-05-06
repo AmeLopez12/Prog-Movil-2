@@ -26,7 +26,6 @@ fun App() {
     MaterialTheme {
         var location by remember { mutableStateOf("Europe/Paris") }
         var timeAtLocation by remember { mutableStateOf("No location selected") }
-
         Column(
             modifier = Modifier
                 .safeContentPadding()
